@@ -25,32 +25,31 @@ Snippets =
     'uniform vec2 resolution;'
     'varying vec3 fPosition;'
     'varying vec3 fNormal;'
-    'uniform vec3 testColor;'
+    'uniform vec3 MatAmb;'
+    'uniform vec3 MatDif;'
+    'uniform vec3 MatSpec;'
+    'uniform float shine;'
     ''
     'void main()'
     '{'
-    '  gl_FragColor = vec4(testColor, 1.0);'
+    '  vec3 lightColor = vec3(1.0, 1.0, 1.0);'
+    '  vec3 lightPos = vec3(1.0, 1.0, 1.0);'
+    '  float diffuseDot = dot(normalize(fNormal), normalize(lightPos));'
+    '  vec3 diffuse = MatDif * max(0.0, diffuseDot) * lightColor;'
+    '  vec3 reflectance = normalize(normalize(-lightPos) + (2.0 * diffuseDot * normalize(fNormal)));'
+    '  float specularDot = dot(normalize(-fPosition), reflectance);'
+    '  vec3 specular = MatSpec * pow(max(0.0, specularDot), shine) * lightColor;'
+    '  vec3 ambient = MatAmb * lightColor;'
+    '  vec3 fragColor = ambient + specular + diffuse;' 
+    '  gl_FragColor = vec4(fragColor, 1.0);'
     '}'
   ].join('\n')
 
   'DefaultUniforms': [
-    'vec3 testColor = vec3(0.0, 0.0, 1.0);'
-    'sampler2D my_texture = "textures/purple_checkers.jpg";'
-  ].join('\n')
-
-  'Texture': [
-    'precision highp float;'
-    'uniform float time;'
-    'uniform vec2 resolution;'
-    'varying vec3 fPosition;'
-    'varying vec3 fNormal;'
-    'uniform sampler2D my_texture;'
-    ''
-    'void main()'
-    '{'
-    '  vec4 color = texture2D(my_texture, vec2((0.4 * fNormal.x) + 0.6, (0.4 * fNormal.y) + 0.4));'
-    '  gl_FragColor = vec4(color.x, color.y, color.z, 1.0);'
-    '}'
+    'vec3 MatAmb = vec3(0.24725, 0.1995, 0.0745);'
+    'vec3 MatDif = vec3(0.75164, 0.60648, 0.22648);'
+    'vec3 MatSpec = vec3(0.628281, 0.555802, 0.366065);'
+    'float shine = 0.4;'
   ].join('\n')
 
   'DemoVertex': [
