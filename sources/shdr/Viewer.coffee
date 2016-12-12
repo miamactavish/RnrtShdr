@@ -114,23 +114,31 @@ class Viewer
       else if type == 'vec2'
         vectorVals = value.slice(5, value.length - 1).split(',').map(
           parseFloat)
-
         uniform['type'] = 'v2'
         uniform['value'] = new THREE.Vector2(vectorVals[0], vectorVals[1])
       else if type == 'vec3'
         vectorVals = value.slice(5, value.length - 1).split(',').map(
           parseFloat)
-
         uniform['type'] = 'v3'
+        console.log(value)
         uniform['value'] = new THREE.Vector3(vectorVals[0], vectorVals[1],
           vectorVals[2])
       else if type == 'vec4'
         vectorVals = value[4:-1].split(', ').map(parseFloat)
-
         uniform['type'] = 'v4'
         uniform['value'] = new THREE.Vector4(vectorVals[0], vectorVals[1],
           vectorVals[2], vectorVals[3])
-
+      else if type =='sampler2D'
+        uniform['type'] = 't'
+        # Remove quotes from string
+        value = value.replace(/^"(.*)"$/, '$1')
+        value = value.replace(/^"(.*)"$/, "$1")
+        console.log(value.split('/'))
+        # Hacky way to make demo work
+        if value.split('/')[0] == 'textures'
+          uniform['value'] = THREE.ImageUtils.loadTexture(value)
+        else
+          uniform['value'] = THREE.ImageUtils.loadTexture(shdr.Textures[value].data)
       uniformObj[name] = uniform
 
     return uniformObj
@@ -145,6 +153,7 @@ class Viewer
     @addCustomUniforms(@parseUniforms(shdr.Snippets.DefaultUniforms))
     @vs = shdr.Snippets.DefaultVertex
     @fs = shdr.Snippets.DefaultFragment
+    console.log(@uniforms)
     return new THREE.ShaderMaterial(
       uniforms: @uniforms
       vertexShader: @vs

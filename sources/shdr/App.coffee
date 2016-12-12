@@ -200,13 +200,27 @@ class App
             shdr.UI.WARNING)
         console.warn 'ERROR: ', e
 
+  texture: (textureObj) ->
+    try
+      @ui.setStatus('Uploading...', shdr.UI.WARNING)
+      reader = new FileReader()
+      reader.readAsDataURL textureObj
+      console.log(textureObj)
+      reader.onload = (e) =>
+        console.log("onload happened")
+        texture = {name: textureObj.name, data: e.target.result}
+        shdr.Textures[texture.name] = texture
+        @ui.setStatus('Uploaded', shdr.UI.SUCCESS)
+    catch e 
+      @ui.setStatus('You must select a texture to upload.', shdr.UI.WARNING)
+
   upload: (fileObj) ->
     try
       @ui.setStatus('Uploading...', shdr.UI.WARNING)
       reader = new FileReader()
       reader.readAsDataURL fileObj
       reader.onload = (e) =>
-        model = {name: fileObj.name, data: e.target.result}
+        model = {name: fileObj.name.split('.')[0], data: e.target.result}
         shdr.Models[e.target.result] = model
         @ui.setStatus('Uploaded', shdr.UI.SUCCESS)
         @ui.addNewModel(fileObj.name, e.target.result)
