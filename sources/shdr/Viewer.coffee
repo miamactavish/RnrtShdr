@@ -41,9 +41,9 @@ class Viewer
       @uniforms.resolution.value.x = @dom.clientWidth
       @uniforms.resolution.value.y = @dom.clientHeight
     @renderer.setSize(@dom.clientWidth, @dom.clientHeight)
-
+  
   loadModel: (key) ->
-    @loader.load(key, (geo) => 
+    @loader.load(key, (geo) =>
       @initModel(geo, key)
     )
     @app.ui.showModelLoader()
@@ -78,6 +78,9 @@ class Viewer
       resolution:
         type: 'v2'
         value: new THREE.Vector2(@dom.clientWidth, @dom.clientHeight)
+      texture: 
+        type: 't'
+        value: new THREE.TextureLoader().load("models/test.jpg")
     @vs = shdr.Snippets.DefaultVertex
     @fs = shdr.Snippets.DefaultFragment
     return new THREE.ShaderMaterial(
