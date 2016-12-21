@@ -21,11 +21,14 @@ class App
     @extend(@conf, conf)
     @ui = new shdr.UI(@)
     return if not @initViewer(domCanvas)
+    if window.location.search.substring(1) == 'editor'
+      @ui.hideViewer()
     @initEditor(domEditor)
     @initFromURL()
     @byId(domEditor).addEventListener('keyup', ((e) => @onEditorKeyUp(e)), off)
     @byId(domEditor).addEventListener('keydown', ((e) => @onEditorKeyDown(e)), off)
     @ui.hideMainLoader()
+    @domEditor = domEditor
     @loop()
 
   initBaseurl: ->
@@ -122,7 +125,7 @@ class App
       if _fs and _vs
         @viewer.updateShader(vs, App.VERTEX)
         @viewer.updateShader(fs, App.FRAGMENT)
-        @editor.getSession().setValue(if @conf.mode is App.VERTEX then vs else fs)        
+        @editor.getSession().setValue(if @conf.mode is App.VERTEX then vs else fs)
         @ui.setMenuMode(App.FRAGMENT)
         @ui.setStatus("Shaders successfully loaded and compiled.",
           shdr.UI.SUCCESS)

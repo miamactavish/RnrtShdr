@@ -15,6 +15,11 @@ class UI
     @initBoxes()
     @resetLoadFiles()
 
+  hideViewer: ->
+    $('#panel-right').fadeOut(400)
+    $('#panel-left').css('right', '0%')
+    $('#mid-separator').css('left', '100%')
+
   hideMainLoader: ->
     $('#main-loader').fadeOut(400)
 
@@ -45,7 +50,7 @@ class UI
     span = el.children('span')
     icon = span.children('i')
     content = span.children('b')
-    @status = 
+    @status =
       container: el
       span: span
       icon: icon
