@@ -1,11 +1,11 @@
 var Models = {
-  'models/cube.js': {
+  'models/cube.obj': {
     name: 'Cube'
   },
   'models/quad.js': {
     name: 'Quad'
   },
-  'models/sphere.js': {
+  'models/sphere.obj': {
     name: 'Sphere'
   },
   'models/torus.js': {
@@ -21,9 +21,6 @@ var Models = {
   },
   'models/suzanne_low.js': {
     name: 'Suzanne (low)'
-  },
-  'models/cube.obj': {
-    name: 'Cube (obj)'
   },
   'models/suzanne_high.js': {
     name: 'Suzanne (high)'
