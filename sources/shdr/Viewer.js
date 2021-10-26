@@ -32,18 +32,39 @@ var Viewer = (function() {
 
     // manager
 
-    let object;
     shdr.material = this.defaultMaterial();
 
     function loadModel() {
 
-      object.traverse( function ( child ) {
+      shdr.object.traverse( function ( child ) {
 
         if ( child.isMesh ) child.material = shdr.material;
         //if ( child.isMesh ) child.material.map = material;
       } );
 
-      shdr.scene.add( object );
+      //shdr.scene.add( this.object );
+
+      var key = "models/sphere.obj";
+      var geo = shdr.object;
+      console.log("initializing");
+      var data, old;
+      this.currentModel = key;
+      data = window.shdr.Models[key];
+      if (shdr.model != null) {
+        old = shdr.model.geometry;
+        shdr.scene.remove(shdr.model);
+        console.log("removed)");
+        //old.dispose();
+      }
+      console.log(geo);
+      shdr.model = geo;
+      if (data != null) {
+        if (data.scale != null) {
+          shdr.model.scale.set(data.scale, data.scale, data.scale);
+        }
+      }
+      shdr.scene.add(shdr.model);
+      //return this.app.ui.hideModelLoader();
     }
 
     this.manager = new THREE.LoadingManager( loadModel );
@@ -62,11 +83,12 @@ var Viewer = (function() {
     const texture = textureLoader.load( 'textures/beanie.jpg' );
     
     this.objLoader = new OBJLoader( this.manager );
-    this.objLoader.load( 'models/cube.obj', function ( obj ) {
-      object = obj;
+    /*
+    this.objLoader.load( 'models/sphere.obj', function ( obj ) {
+      shdr.object = obj;
     }, onProgress, onError );
-
-    this.model = object;
+*/
+    this.loadModel('models/sphere.obj');
 
     this.onResize();
     window.addEventListener('resize', ((function(_this) {
@@ -81,15 +103,15 @@ var Viewer = (function() {
     this.time += 0.001;
     
     //this.uniforms.time.value = this.time;
-    if (this.model && this.rotate) {
-      this.model.rotation.y += this.rotateRate;
+    if (shdr.model && this.rotate) {
+      shdr.model.rotation.y += this.rotateRate;
     }
 
     return this.renderer.render(shdr.scene, this.camera);
   };
 
   Viewer.prototype.reset = function() {
-    return this.model.rotation.y = 0;
+    return shdr.model.rotation.y = 0;
   };
 
   Viewer.prototype.onResize = function() {
@@ -109,33 +131,37 @@ var Viewer = (function() {
   Viewer.prototype.loadModel = function(key) {
     this.ext = key.split(".");
     
-    this.objLoader.load(key, (function(_this) {
+    this.objLoader.load(key, (function(obj) {
+      
+      shdr.object = obj;
+      console.log("loading");
       return function(geo) {
-        return _this.initModel(geo, key);
+      //  return _this.initModel(geo, key);
       };
-    })(this));
+    }));
 
-    return this.app.ui.showModelLoader();
+    //return this.app.ui.showModelLoader();
   };
 
   Viewer.prototype.initModel = function(geo, key) {
+    console.log("initializing");
     var data, old;
     this.currentModel = key;
     data = window.shdr.Models[key];
-    if (this.model != null) {
-      old = this.model.geometry;
-      shdr.scene.remove(this.model);
+    if (shdr.model != null) {
+      old = shdr.model.geometry;
+      shdr.scene.remove(shdr.model);
       old.dispose();
     }
     console.log(geo);
     console.dir(geo);
-    this.model = geo;
+    shdr.model = geo;
     if (data != null) {
       if (data.scale != null) {
-        this.model.scale.set(data.scale, data.scale, data.scale);
+        shdr.model.scale.set(data.scale, data.scale, data.scale);
       }
     }
-    shdr.scene.add(this.model);
+    shdr.scene.add(shdr.model);
     return this.app.ui.hideModelLoader();
   };
 
