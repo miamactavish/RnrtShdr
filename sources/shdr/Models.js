@@ -24,6 +24,9 @@ var Models = {
   },
   'models/suzanne_high.js': {
     name: 'Suzanne (high)'
+  },
+  'models/castle.obj': {
+    name: 'Castle'
   }
   
 };
