@@ -27,10 +27,8 @@ var Viewer = (function() {
     this.controls = new OrbitControls(this.camera, this.dom);
     shdr.scene.add(this.camera);
 
-    this.vs = window.shdr.Snippets.DefaultVertex;
-    this.fs = window.shdr.Snippets.DefaultFragment;
-
-    // manager
+    this.vs = window.shdr.Snippets.BlinnPhongVertex;
+    this.fs = window.shdr.Snippets.BlinnPhongFragment;
 
     shdr.material = this.defaultMaterial();
 
@@ -42,29 +40,21 @@ var Viewer = (function() {
         //if ( child.isMesh ) child.material.map = material;
       } );
 
-      //shdr.scene.add( this.object );
-
       var key = "models/sphere.obj";
       var geo = shdr.object;
-      console.log("initializing");
       var data, old;
       this.currentModel = key;
       data = window.shdr.Models[key];
       if (shdr.model != null) {
         old = shdr.model.geometry;
         shdr.scene.remove(shdr.model);
-        console.log("removed)");
         //old.dispose();
       }
-      console.log(geo);
       shdr.model = geo;
-      if (data != null) {
-        if (data.scale != null) {
-          shdr.model.scale.set(data.scale, data.scale, data.scale);
-        }
+      if (data != null && data.scale != null) {
+        shdr.model.scale.set(data.scale, data.scale, data.scale);
       }
       shdr.scene.add(shdr.model);
-      //return this.app.ui.hideModelLoader();
     }
 
     this.manager = new THREE.LoadingManager( loadModel );
@@ -83,11 +73,7 @@ var Viewer = (function() {
     const texture = textureLoader.load( 'textures/beanie.jpg' );
     
     this.objLoader = new OBJLoader( this.manager );
-    /*
-    this.objLoader.load( 'models/sphere.obj', function ( obj ) {
-      shdr.object = obj;
-    }, onProgress, onError );
-*/
+
     this.loadModel('models/sphere.obj');
 
     this.onResize();
@@ -134,35 +120,12 @@ var Viewer = (function() {
     this.objLoader.load(key, (function(obj) {
       
       shdr.object = obj;
-      console.log("loading");
-      return function(geo) {
-      //  return _this.initModel(geo, key);
-      };
     }));
-
-    //return this.app.ui.showModelLoader();
   };
 
-  Viewer.prototype.initModel = function(geo, key) {
-    console.log("initializing");
-    var data, old;
-    this.currentModel = key;
-    data = window.shdr.Models[key];
-    if (shdr.model != null) {
-      old = shdr.model.geometry;
-      shdr.scene.remove(shdr.model);
-      old.dispose();
-    }
-    console.log(geo);
-    console.dir(geo);
-    shdr.model = geo;
-    if (data != null) {
-      if (data.scale != null) {
-        shdr.model.scale.set(data.scale, data.scale, data.scale);
-      }
-    }
-    shdr.scene.add(shdr.model);
-    return this.app.ui.hideModelLoader();
+  Viewer.prototype.initModel = function(geo, key) 
+  {
+    this.loadModel(key);
   };
 
   Viewer.prototype.updateShader = function(shader, mode) {
@@ -307,7 +270,7 @@ var Viewer = (function() {
 
   Viewer.prototype.defaultMaterial = function() {
     this.resetUniforms();
-    //this.addCustomUniforms(this.parseUniforms(shdr.Snippets.DefaultUniforms));
+    this.addCustomUniforms(this.parseUniforms(shdr.Snippets.DefaultUniforms));
     
     return new THREE.RawShaderMaterial( {
 
