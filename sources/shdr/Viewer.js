@@ -19,13 +19,21 @@ var Viewer = (function() {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true
     });
+    this.renderer.setClearColor(new THREE.Color("rgb(196, 208, 242)"));
+
     this.canvas = this.renderer.domElement;
 
     this.dom.appendChild(this.canvas);
     shdr.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(45, this.dom.clientWidth / this.dom.clientHeight, 0.1, 100000);
+    this.orthoCamera = new THREE.OrthographicCamera(4.0 / -2, 4.0 / 2,  4.0 / -2, 4.0 / 2, 0.1, 1000);
     this.controls = new OrbitControls(this.camera, this.dom);
     shdr.scene.add(this.camera);
+
+    // Setup for rendering to texture
+    this.bufferScene = new THREE.Scene();
+    this.bufferTexture = new THREE.WebGLRenderTarget(this.dom.clientWidth, this.dom.clientHeight);
+
 
     this.vs = window.shdr.Snippets.BlinnPhongVertex;
     this.fs = window.shdr.Snippets.BlinnPhongFragment;
@@ -88,11 +96,15 @@ var Viewer = (function() {
     this.controls.update();
     this.time += 0.001;
     
-    //this.uniforms.time.value = this.time;
+    this.uniforms.time.value = this.time;
     if (shdr.model && this.rotate) {
       shdr.model.rotation.y += this.rotateRate;
     }
 
+    // render to texture
+    //this.renderer.render(shdr.scene, this.camera, this.bufferTexture);
+
+    //return this.renderer.render(shdr.scene, this.orthoCamera);
     return this.renderer.render(shdr.scene, this.camera);
   };
 
@@ -279,6 +291,19 @@ var Viewer = (function() {
       fragmentShader: this.fs
     } );
   };
+
+  Viewer.prototype.bufferMaterial = function() {
+    this.resetUniforms();
+    this.addCustomUniforms(this.parseUniforms(shdr.Snippets.BufferUniforms));
+    
+    return new THREE.RawShaderMaterial( {
+
+      uniforms: this.uniforms,
+      vertexShader: shdr.Snippets.DefaultVertex,
+      fragmentShader: shdr.Snippets.DefaultFragment
+    } );
+  };
+
 
   return Viewer;
 

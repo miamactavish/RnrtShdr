@@ -2,27 +2,23 @@ var Models = {
   'models/cube.obj': {
     name: 'Cube'
   },
-  'models/quad.js': {
+  'models/plane.obj': {
     name: 'Quad'
   },
   'models/sphere.obj': {
     name: 'Sphere'
   },
-  'models/torus.js': {
+  'models/torus.obj': {
     name: 'Torus'
   },
   'models/dragon.js': {
     name: 'Dragon',
     scale: 1.2
   },
-  'models/hexmkii.js': {
-    name: 'Hex MKII',
-    scale: 0.01
-  },
-  'models/suzanne_low.js': {
+  'models/suzanne_low.obj': {
     name: 'Suzanne (low)'
   },
-  'models/suzanne_high.js': {
+  'models/suzanne_high.obj': {
     name: 'Suzanne (high)'
   },
   'models/castle.obj': {
