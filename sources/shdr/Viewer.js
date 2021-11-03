@@ -26,20 +26,32 @@ var Viewer = (function() {
     this.dom.appendChild(this.canvas);
     shdr.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(45, this.dom.clientWidth / this.dom.clientHeight, 0.1, 100000);
-    this.orthoCamera = new THREE.OrthographicCamera(4.0 / -2, 4.0 / 2,  4.0 / -2, 4.0 / 2, 0.1, 1000);
     this.controls = new OrbitControls(this.camera, this.dom);
     shdr.scene.add(this.camera);
 
     // Setup for rendering to texture
-    this.bufferScene = new THREE.Scene();
+    shdr.bufferScene = new THREE.Scene();
     this.bufferTexture = new THREE.WebGLRenderTarget(this.dom.clientWidth, this.dom.clientHeight);
-
+    this.orthoCamera = new THREE.OrthographicCamera( this.dom.clientWidth / - 4, this.dom.clientWidth / 4, this.dom.clientHeight / 4, this.dom.clientHeight / - 4, 0.1, 1000 );
+    shdr.bufferScene.add( this.orthoCamera );
 
     this.vs = window.shdr.Snippets.BlinnPhongVertex;
     this.fs = window.shdr.Snippets.BlinnPhongFragment;
 
+    this.bvs = this.vs;
+    this.bfs = window.shdr.Snippets.TextureFragment;
+
+    const geometry = new THREE.PlaneGeometry( 100, 100 );
+    const material = this.bufferMaterial();
+    const plane = new THREE.Mesh( geometry, material );
+    shdr.bufferScene.add( plane );
+
+    //render to texture
+    //this.renderer.render(shdr.bufferScene, this.orthoCamera, this.bufferTexture);
+
     shdr.material = this.defaultMaterial();
 
+    
     function loadModel() {
 
       shdr.object.traverse( function ( child ) {
@@ -101,11 +113,10 @@ var Viewer = (function() {
       shdr.model.rotation.y += this.rotateRate;
     }
 
-    // render to texture
-    //this.renderer.render(shdr.scene, this.camera, this.bufferTexture);
-
-    //return this.renderer.render(shdr.scene, this.orthoCamera);
-    return this.renderer.render(shdr.scene, this.camera);
+    
+    return this.renderer.render(shdr.bufferScene, this.camera);
+    //return this.renderer.render(shdr.bufferScene, this.orthoCamera);
+    //return this.renderer.render(shdr.scene, this.camera);
   };
 
   Viewer.prototype.reset = function() {
@@ -167,6 +178,10 @@ var Viewer = (function() {
       resolution: {
         type: 'v2',
         value: new THREE.Vector2(this.dom.clientWidth, this.dom.clientHeight)
+      },
+      tex: {
+        type: 'sampler2D',
+        value: this.bufferTexture,
       }
     };
   };
@@ -280,6 +295,18 @@ var Viewer = (function() {
     return results;
   };
 
+  Viewer.prototype.bufferMaterial = function() {
+    this.resetUniforms();
+    //this.addCustomUniforms(this.parseUniforms(shdr.Snippets.DefaultUniforms));
+    
+    return new THREE.RawShaderMaterial( {
+
+      uniforms: {},
+      vertexShader: this.bvs,
+      fragmentShader: this.bfs
+    } );
+  };
+
   Viewer.prototype.defaultMaterial = function() {
     this.resetUniforms();
     this.addCustomUniforms(this.parseUniforms(shdr.Snippets.DefaultUniforms));
@@ -291,19 +318,6 @@ var Viewer = (function() {
       fragmentShader: this.fs
     } );
   };
-
-  Viewer.prototype.bufferMaterial = function() {
-    this.resetUniforms();
-    this.addCustomUniforms(this.parseUniforms(shdr.Snippets.BufferUniforms));
-    
-    return new THREE.RawShaderMaterial( {
-
-      uniforms: this.uniforms,
-      vertexShader: shdr.Snippets.DefaultVertex,
-      fragmentShader: shdr.Snippets.DefaultFragment
-    } );
-  };
-
 
   return Viewer;
 

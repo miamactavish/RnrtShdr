@@ -10,6 +10,18 @@ var Snippets = {
   'ColorNormal': ['vec3 colorNormal(vec3 col1, vec3 col2, vec3 col3)', '{', '  vec3 n = normalize(fNormal);', '  return clamp(col1*n.x + col2*n.y + col3*n.z,', '              vec3(0.0), vec3(1.0));', '}'].join('\n'),
   'Rimlight': ['vec3 rim(vec3 color, float start, float end, float coef)', '{', '  vec3 normal = normalize(fNormal);', '  vec3 eye = normalize(-fPosition.xyz);', '  float rim = smoothstep(start, end, 1.0 - dot(normal, eye));', '  return clamp(rim, 0.0, 1.0) * coef * color;', '}'].join('\n'),
 
+  'TextureFragment': `precision highp float;
+uniform float time;
+uniform vec2 resolution;
+uniform vec3 objectColor;
+varying vec3 fPosition;
+varying vec3 fNormal;
+varying mat4 fModelView;
+
+void main()
+{
+  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+}`,
   'BlinnPhongFragment': `precision highp float;
 uniform float time;
 uniform vec2 resolution;
