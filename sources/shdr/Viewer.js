@@ -33,7 +33,7 @@ var Viewer = (function() {
     shdr.bufferScene = new THREE.Scene();
     this.bufferTexture = new THREE.WebGLRenderTarget(this.dom.clientWidth, this.dom.clientHeight);
     this.orthoCamera = new THREE.OrthographicCamera( this.dom.clientWidth / - 4, this.dom.clientWidth / 4, this.dom.clientHeight / 4, this.dom.clientHeight / - 4, 0.1, 1000 );
-    shdr.bufferScene.add( this.orthoCamera );
+    shdr.bufferScene.add( this.camera );
 
     this.vs = window.shdr.Snippets.BlinnPhongVertex;
     this.fs = window.shdr.Snippets.BlinnPhongFragment;
@@ -113,10 +113,12 @@ var Viewer = (function() {
       shdr.model.rotation.y += this.rotateRate;
     }
 
-    
-    return this.renderer.render(shdr.bufferScene, this.camera);
-    //return this.renderer.render(shdr.bufferScene, this.orthoCamera);
-    //return this.renderer.render(shdr.scene, this.camera);
+    this.renderer.setRenderTarget(this.bufferTexture);
+    //return this.renderer.render(shdr.bufferScene, this.camera);
+    this.renderer.render(shdr.bufferScene, this.camera);
+    this.renderer.setRenderTarget(null);
+
+    return this.renderer.render(shdr.scene, this.camera);
   };
 
   Viewer.prototype.reset = function() {
@@ -181,7 +183,7 @@ var Viewer = (function() {
       },
       tex: {
         type: 'sampler2D',
-        value: this.bufferTexture,
+        value: this.bufferTexture.texture,
       }
     };
   };
