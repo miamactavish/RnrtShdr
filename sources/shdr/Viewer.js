@@ -32,7 +32,7 @@ var Viewer = (function() {
     // Setup for rendering to texture
     shdr.bufferScene = new THREE.Scene();
     this.bufferTexture = new THREE.WebGLRenderTarget(this.dom.clientWidth, this.dom.clientHeight);
-    this.orthoCamera = new THREE.OrthographicCamera( this.dom.clientWidth / - 4, this.dom.clientWidth / 4, this.dom.clientHeight / 4, this.dom.clientHeight / - 4, 0.1, 1000 );
+    this.orthoCamera = new THREE.OrthographicCamera( this.dom.clientWidth / - 2, this.dom.clientWidth / 2, this.dom.clientHeight / 2, this.dom.clientHeight / - 2, -1, 1000 );
     shdr.bufferScene.add( this.camera );
 
     this.vs = window.shdr.Snippets.BlinnPhongVertex;
@@ -41,7 +41,7 @@ var Viewer = (function() {
     this.bvs = this.vs;
     this.bfs = window.shdr.Snippets.TextureFragment;
 
-    const geometry = new THREE.PlaneGeometry( 100, 100 );
+    const geometry = new THREE.PlaneGeometry(this.dom.clientWidth, this.dom.clientHeight);
     const material = this.bufferMaterial();
     const plane = new THREE.Mesh( geometry, material );
     shdr.bufferScene.add( plane );
