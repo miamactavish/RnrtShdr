@@ -14,13 +14,15 @@ var Snippets = {
 uniform float time;
 uniform vec2 resolution;
 uniform vec3 objectColor;
+uniform sampler2D tex;
 varying vec3 fPosition;
 varying vec3 fNormal;
+varying vec2 fUv;
 varying mat4 fModelView;
 
 void main()
 {
-  gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+  gl_FragColor = texture2D(tex, fUv);
 }`,
   'BlinnPhongFragment': `precision highp float;
 uniform float time;
@@ -72,7 +74,7 @@ void main()
   gl_FragColor = vec4((ambient + diffuse) * color + (specular * lightColor), 1.0);
 
 }`,
-  'BlinnPhongVertex': `precision highp float;
+'BlinnPhongVertex': `precision highp float;
 attribute vec3 position;
 attribute vec3 normal;
 uniform mat3 normalMatrix;
@@ -90,7 +92,29 @@ void main()
   vec4 pos = modelViewMatrix * vec4(position, 1.0);
   fPosition = pos.xyz;
   gl_Position = projectionMatrix * pos;
-}`
+}`,
+'TextureVertex': `precision highp float;
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 uv;
+uniform mat3 normalMatrix;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+varying vec2 fUv;
+varying vec3 fNormal;
+varying vec3 fPosition;
+varying mat4 fModelView;
+
+void main()
+{
+  fUv = uv;
+  fModelView = modelViewMatrix;
+  fNormal = normalize(normalMatrix * normal);
+  vec4 pos = modelViewMatrix * vec4(position, 1.0);
+  fPosition = pos.xyz;
+  gl_Position = projectionMatrix * pos;
+}`,
   
 };
 

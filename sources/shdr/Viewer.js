@@ -38,7 +38,7 @@ var Viewer = (function() {
     this.vs = window.shdr.Snippets.BlinnPhongVertex;
     this.fs = window.shdr.Snippets.BlinnPhongFragment;
 
-    this.bvs = this.vs;
+    this.bvs = window.shdr.Snippets.TextureVertex;
     this.bfs = window.shdr.Snippets.TextureFragment;
 
     const geometry = new THREE.PlaneGeometry(this.dom.clientWidth, this.dom.clientHeight);
@@ -115,10 +115,10 @@ var Viewer = (function() {
 
     this.renderer.setRenderTarget(this.bufferTexture);
     //return this.renderer.render(shdr.bufferScene, this.camera);
-    this.renderer.render(shdr.bufferScene, this.camera);
+    this.renderer.render(shdr.scene, this.camera);
     this.renderer.setRenderTarget(null);
 
-    return this.renderer.render(shdr.scene, this.camera);
+    return this.renderer.render(shdr.bufferScene, this.orthoCamera);
   };
 
   Viewer.prototype.reset = function() {
@@ -172,6 +172,19 @@ var Viewer = (function() {
   };
 
   Viewer.prototype.resetUniforms = function() {
+    return this.uniforms = {
+      time: {
+        type: 'f',
+        value: this.time
+      },
+      resolution: {
+        type: 'v2',
+        value: new THREE.Vector2(this.dom.clientWidth, this.dom.clientHeight)
+      }
+    };
+  };
+
+  Viewer.prototype.resetBufferUniforms = function() {
     return this.uniforms = {
       time: {
         type: 'f',
@@ -298,12 +311,27 @@ var Viewer = (function() {
   };
 
   Viewer.prototype.bufferMaterial = function() {
-    this.resetUniforms();
+    this.resetBufferUniforms();
     //this.addCustomUniforms(this.parseUniforms(shdr.Snippets.DefaultUniforms));
     
+     var uni = {
+      time: {
+        type: 'f',
+        value: this.time
+      },
+      resolution: {
+        type: 'v2',
+        value: new THREE.Vector2(this.dom.clientWidth, this.dom.clientHeight)
+      },
+      tex: {
+        type: 'sampler2D',
+        value: this.bufferTexture.texture,
+      }
+    };
+
     return new THREE.RawShaderMaterial( {
 
-      uniforms: {},
+      uniforms: uni,
       vertexShader: this.bvs,
       fragmentShader: this.bfs
     } );
