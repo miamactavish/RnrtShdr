@@ -4,15 +4,12 @@
 
   App = (function() {
     App.UPDATE_ALL = 0;
-
     App.UPDATE_ENTER = 1;
-
     App.UPDATE_MANUAL = 2;
 
-    App.FRAGMENT = 0;
-
-    App.VERTEX = 1;
-
+    App.VERTEX = 0;
+    App.FRAGMENT = 1;
+    App.POST = 3;
     App.UNIFORMS = 2;
 
     function App(domEditor, domCanvas, conf) {
@@ -88,8 +85,9 @@
     };
 
     App.prototype.initEditor = function(domEditor) {
-      this.documents[App.FRAGMENT] = this.viewer.fs;
       this.documents[App.VERTEX] = this.viewer.vs;
+      this.documents[App.FRAGMENT] = this.viewer.fs;
+      this.documents[App.POST] = this.viewer.bfs;
       this.documents[App.UNIFORMS] =window.shdr.Snippets.DefaultUniforms;
       this.editor = ace.edit(domEditor);
       this.editor.setFontSize("16px");
@@ -122,6 +120,8 @@
       }
       if (this.conf.mode === App.FRAGMENT) {
         type =window.shdr.Validator.FRAGMENT;
+      } else if (this.conf.mode === App.POST) {
+        type =window.shdr.Validator.POST;
       } else if (this.conf.mode === App.UNIFORMS) {
         try {
           newUniforms = session.getValue();
@@ -161,8 +161,9 @@
       var _fs, _vs, fl, fm, fs, ref, ref1, uniforms, vl, vm, vs;
       if (obj && obj.documents) {
         this.documents = obj.documents;
-        fs = this.documents[App.FRAGMENT];
         vs = this.documents[App.VERTEX];
+        fs = this.documents[App.FRAGMENT];
+        bfs = this.documents[App.POST];
         uniforms = this.documents[App.UNIFORMS];
         ref = this.validator.validate(fs,window.shdr.Validator.FRAGMENT), _fs = ref[0], fl = ref[1], fm = ref[2];
         ref1 = this.validator.validate(vs,window.shdr.Validator.VERTEX), _vs = ref1[0], vl = ref1[1], vm = ref1[2];
@@ -170,6 +171,7 @@
         if (_fs && _vs) {
           this.viewer.updateShader(vs, App.VERTEX);
           this.viewer.updateShader(fs, App.FRAGMENT);
+          this.viewer.updateShader(bfs, App.POST);
           this.editor.getSession().setValue(this.conf.mode === App.VERTEX ? vs : fs);
           this.ui.setMenuMode(App.FRAGMENT);
           this.ui.setStatus("Shaders successfully loaded and compiled.",window.shdr.UI.SUCCESS);
@@ -486,6 +488,11 @@
             this.documents[old] = session.getValue();
           }
           session.setValue(this.documents[App.UNIFORMS]);
+        case App.POST:
+          if (!force) {
+            this.documents[old] = session.getValue();
+          }
+          session.setValue(this.documents[App.POST]);
       }
       this.updateShader();
       return this;

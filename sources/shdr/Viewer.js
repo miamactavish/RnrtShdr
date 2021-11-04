@@ -3,11 +3,13 @@ import { OBJLoader } from '../libs/threejs/examples/jsm/loaders/OBJLoader.js';
 import { OrbitControls } from '../libs/threejs/examples/jsm/controls/OrbitControls.js';
 
 var Viewer = (function() {
-  Viewer.FRAGMENT = 0;
+  Viewer.VERTEX = 0;
 
-  Viewer.VERTEX = 1;
+  Viewer.FRAGMENT = 1;
 
   Viewer.UNIFORMS = 2;
+
+  Viewer.POST = 3;
 
   function Viewer(dom, app) {
     this.dom = dom;
@@ -41,16 +43,16 @@ var Viewer = (function() {
     this.bvs = window.shdr.Snippets.TextureVertex;
     this.bfs = window.shdr.Snippets.TextureFragment;
 
-    const geometry = new THREE.PlaneGeometry(this.dom.clientWidth, this.dom.clientHeight);
-    const material = this.bufferMaterial();
-    const plane = new THREE.Mesh( geometry, material );
-    shdr.bufferScene.add( plane );
-
     //render to texture
     //this.renderer.render(shdr.bufferScene, this.orthoCamera, this.bufferTexture);
 
     shdr.material = this.defaultMaterial();
+    shdr.bufferMaterial = this.bufferMaterial();
 
+    const geometry = new THREE.PlaneGeometry(this.dom.clientWidth, this.dom.clientHeight);
+    const material = shdr.bufferMaterial;
+    const plane = new THREE.Mesh( geometry, material );
+    shdr.bufferScene.add( plane );
     
     function loadModel() {
 
@@ -160,6 +162,10 @@ var Viewer = (function() {
     if (mode === Viewer.FRAGMENT) {
       this.fs = shader;
       shdr.material.fragmentShader = shader;
+    } else if (mode === Viewer.POST) {
+      this.bfs = shader;
+      shdr.bufferMaterial.fragmentShader = shader;
+      return shdr.bufferMaterial.needsUpdate = true;
     } else if (mode === Viewer.UNIFORMS) {
       this.resetUniforms();
       this.addCustomUniforms(this.parseUniforms(shader));

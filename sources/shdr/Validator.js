@@ -1,8 +1,8 @@
 
 var Validator = (function() {
-  Validator.FRAGMENT = null;
-
   Validator.VERTEX = null;
+  Validator.FRAGMENT = null;
+  Validator.POST = null;
 
   function Validator(canvas) {
     var e;
@@ -23,8 +23,9 @@ var Validator = (function() {
       this.available = false;
       console.warn('GLSL Validator: No WebGL context.');
     } else {
-      Validator.FRAGMENT = this.context.FRAGMENT_SHADER;
       Validator.VERTEX = this.context.VERTEX_SHADER;
+      Validator.FRAGMENT = this.context.FRAGMENT_SHADER;
+      Validator.POST = this.context.POST_SHADER;
     }
   }
 
