@@ -27,24 +27,23 @@ var Viewer = (function() {
 
     this.dom.appendChild(this.canvas);
     shdr.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(45, this.dom.clientWidth / this.dom.clientHeight, 0.1, 100000);
+    this.camera = new THREE.PerspectiveCamera(45, this.dom.clientWidth / this.dom.clientHeight, 0.1, 1000);
     this.controls = new OrbitControls(this.camera, this.dom);
-    shdr.scene.add(this.camera);
 
     // Setup for rendering to texture
     shdr.bufferScene = new THREE.Scene();
+
     this.bufferTexture = new THREE.WebGLRenderTarget(this.dom.clientWidth, this.dom.clientHeight);
+    this.bufferTexture.depthBuffer = true;
+		this.bufferTexture.depthTexture = new THREE.DepthTexture(this.dom.clientWidth, this.dom.clientHeight);
     this.orthoCamera = new THREE.OrthographicCamera( this.dom.clientWidth / - 2, this.dom.clientWidth / 2, this.dom.clientHeight / 2, this.dom.clientHeight / - 2, -1, 1000 );
-    shdr.bufferScene.add( this.camera );
 
     this.vs = window.shdr.Snippets.BlinnPhongVertex;
     this.fs = window.shdr.Snippets.BlinnPhongFragment;
 
-    this.bvs = window.shdr.Snippets.TextureVertex;
+    // Shaders for buffer
+    this.bvs = window.shdr.HiddenSnippets.TextureVertex;
     this.bfs = window.shdr.Snippets.TextureFragment;
-
-    //render to texture
-    //this.renderer.render(shdr.bufferScene, this.orthoCamera, this.bufferTexture);
 
     shdr.material = this.defaultMaterial();
     shdr.bufferMaterial = this.bufferMaterial();
@@ -59,7 +58,6 @@ var Viewer = (function() {
       shdr.object.traverse( function ( child ) {
 
         if ( child.isMesh ) child.material = shdr.material;
-        //if ( child.isMesh ) child.material.map = material;
       } );
 
       var key = "models/sphere.obj";
@@ -116,9 +114,12 @@ var Viewer = (function() {
     }
 
     this.renderer.setRenderTarget(this.bufferTexture);
-    //return this.renderer.render(shdr.bufferScene, this.camera);
     this.renderer.render(shdr.scene, this.camera);
     this.renderer.setRenderTarget(null);
+
+    //shdr.bufferMaterial.uniforms.tex.value = this.bufferTexture.texture;
+    //shdr.bufferMaterial.uniforms.depth_buffer.value = this.bufferTexture.depthTexture;
+		//postMaterial.uniforms.tDepth.value = target.depthTexture;
 
     return this.renderer.render(shdr.bufferScene, this.orthoCamera);
   };
@@ -332,6 +333,10 @@ var Viewer = (function() {
       tex: {
         type: 'sampler2D',
         value: this.bufferTexture.texture,
+      },
+      depth_buffer: {
+        type: 'sampler2D',
+        value: this.bufferTexture.depthTexture,
       }
     };
 
@@ -341,6 +346,7 @@ var Viewer = (function() {
       vertexShader: this.bvs,
       fragmentShader: this.bfs
     } );
+
   };
 
   Viewer.prototype.defaultMaterial = function() {

@@ -7,7 +7,6 @@ var Validator = (function() {
   function Validator(canvas) {
     var e;
     this.canvas = canvas;
-    console.dir(canvas);
     this.available = true;
     if (!this.canvas) {
       this.canvas = document.createElement('Canvas');
