@@ -86,6 +86,35 @@ void main()
   fPosition = pos.xyz;
   gl_Position = projectionMatrix * pos;
 }`,
+'ViewDepthBuffer': `precision highp float;
+uniform sampler2D depth_buffer;
+varying vec2 fPosition;
+varying vec2 fUv;
+
+float viewZToOrthographicDepth( const in float viewZ, const in float near, const in float far ) {
+  return ( viewZ + near ) / ( near - far );
+}
+
+float perspectiveDepthToViewZ( const in float invClipZ, const in float near, const in float far ) {
+  return ( near * far ) / ( ( far - near ) * invClipZ - far );
+}
+
+float readDepth( sampler2D depthSampler, vec2 coord ) {
+  float cameraNear = 0.1;
+  float cameraFar = 100.0;
+	float fragCoordZ = texture2D( depthSampler, coord ).x;
+
+	float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+
+	return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+}
+
+void main() {
+	float depth = readDepth( depth_buffer, fUv );
+
+	gl_FragColor.rgb = 1.0 - vec3( depth );
+	gl_FragColor.a = 1.0;
+}`,
   
 };
 

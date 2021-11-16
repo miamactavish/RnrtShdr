@@ -337,7 +337,15 @@ var Viewer = (function() {
       depth_buffer: {
         type: 'sampler2D',
         value: this.bufferTexture.depthTexture,
-      }
+      },
+      width: {
+        type: 'f',
+        value: this.dom.clientWidth,
+      },
+      height: {
+        type: 'f',
+        value: this.dom.clientHeight,
+      },
     };
 
     return new THREE.RawShaderMaterial( {
