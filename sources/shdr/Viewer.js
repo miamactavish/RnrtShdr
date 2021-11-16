@@ -7,9 +7,9 @@ var Viewer = (function() {
 
   Viewer.FRAGMENT = 1;
 
-  Viewer.UNIFORMS = 2;
+  Viewer.POST = 2;
 
-  Viewer.POST = 3;
+  Viewer.UNIFORMS = 3;
 
   function Viewer(dom, app) {
     this.dom = dom;

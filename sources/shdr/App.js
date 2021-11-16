@@ -9,8 +9,8 @@
 
     App.VERTEX = 0;
     App.FRAGMENT = 1;
-    App.POST = 3;
-    App.UNIFORMS = 2;
+    App.POST = 2;
+    App.UNIFORMS = 3;
 
     function App(domEditor, domCanvas, conf) {
       if (conf == null) {
@@ -18,7 +18,7 @@
       }
       window.THREE_SHADER_OVERRIDE = true;
       this.initBaseurl();
-      this.documents = ['', '', ''];
+      this.documents = ['', '', '', ''];
       this.marker = null;
       this.viewer = null;
       this.validator = null;
@@ -66,7 +66,6 @@
       try {
         this.viewer = new window.shdr.Viewer(this.byId(domCanvas), this);
         this.validator = new window.shdr.Validator(this.viewer.canvas);
-        //this.validator = new window.shdr.Validator(this.byId(domCanvas));
 
         console.log("initialized viewer");
       } catch (error) {
