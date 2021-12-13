@@ -38,12 +38,12 @@ var Viewer = (function() {
 		this.bufferTexture.depthTexture = new THREE.DepthTexture(this.dom.clientWidth, this.dom.clientHeight);
     this.orthoCamera = new THREE.OrthographicCamera( this.dom.clientWidth / - 2, this.dom.clientWidth / 2, this.dom.clientHeight / 2, this.dom.clientHeight / - 2, -1, 1000 );
 
-    this.vs = window.shdr.Snippets.BlinnPhongVertex;
-    this.fs = window.shdr.Snippets.BlinnPhongFragment;
+    this.vs = window.shdr.Snippets.AssignmentStarterVertex;
+    this.fs = window.shdr.Snippets.AssignmentStarterFragment;
 
     // Shaders for buffer
     this.bvs = window.shdr.HiddenSnippets.TextureVertex;
-    this.bfs = window.shdr.Snippets.TextureFragment;
+    this.bfs = window.shdr.Snippets.DefaultPostprocessing;
 
     shdr.material = this.defaultMaterial();
     shdr.bufferMaterial = this.bufferMaterial();
@@ -60,7 +60,7 @@ var Viewer = (function() {
         if ( child.isMesh ) child.material = shdr.material;
       } );
 
-      var key = "models/sphere.obj";
+      var key = "models/mechanical.obj";
       var geo = shdr.object;
       var data, old;
       this.currentModel = key;
@@ -94,7 +94,7 @@ var Viewer = (function() {
     
     this.objLoader = new OBJLoader( this.manager );
 
-    this.loadModel('models/sphere.obj');
+    this.loadModel('models/mechanical.obj');
 
     this.onResize();
     window.addEventListener('resize', ((function(_this) {

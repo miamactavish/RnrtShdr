@@ -6,7 +6,11 @@ var Textures = {
   'textures/halloween.png': {
     name: 'textures/halloween.png',
     data: 'textures/halloween.png'
-  }
+  },
+  'textures/gooch.png': {
+    name: 'textures/gooch.png',
+    data: 'textures/gooch.png'
+  },
 };
 
 window.shdr ||= {};

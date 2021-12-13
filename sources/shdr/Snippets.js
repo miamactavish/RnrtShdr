@@ -1,14 +1,8 @@
 var Snippets = {
-  'DefaultVertex': ['precision highp float;', 'attribute vec3 position;', 'attribute vec3 normal;', 'uniform mat3 normalMatrix;', 'uniform mat4 modelViewMatrix;', 'uniform mat4 projectionMatrix;', 'uniform mat2 faceVertexUvs;', 'varying vec3 fNormal;', 'varying vec3 fPosition;', 'varying vec2 vUv;', '', 'void main()', '{', '  vUv = faceVertexUvs * vec2(1, 1);', '  fNormal = normalize(normalMatrix * normal);', '  vec4 pos = modelViewMatrix * vec4(position, 1.0);', '  fPosition = pos.xyz;', '  gl_Position = projectionMatrix * pos;', '}'].join('\n'),
-  'DefaultFragment': ['precision highp float;', 'uniform float time;', 'uniform vec2 resolution;', 'varying vec3 fPosition;', 'varying vec3 fNormal;', 'varying vec2 vUv;', 'uniform vec3 objectColor;', '', 'void main()', '{', '  gl_FragColor = vec4(fNormal, 1.0);', '}'].join('\n'),
-  'DefaultUniforms': ['vec3 objectColor = vec3(1.0, 0.0, 0.0);', 'sampler2D my_texture = "textures/beanie.jpg";'].join('\n'),
-  'Texture': ['precision highp float;', 'uniform float time;', 'uniform vec2 resolution;', 'varying vec3 fPosition;', 'varying vec3 fNormal;', 'uniform sampler2D my_texture;', '', 'void main()', '{', '  vec4 color = texture2D(my_texture, vec2((0.4 * fNormal.x) + 0.6, (0.4 * fNormal.y) + 0.4));', '  gl_FragColor = vec4(color.x, color.y, color.z, 1.0);', '}'].join('\n'),
-  'DemoVertex': ['precision highp float;', 'attribute vec3 position;', '', 'void main()', '{', '  gl_Position = vec4(position, 1.0);', '}'].join('\n'),
-  'DemoFragment': ['precision highp float;', '', 'uniform float time;', 'uniform vec2 resolution;', '', 'uniform mat4 modelViewMatrix;', 'uniform mat4 projectionMatrix;', '', 'void main()', '{', '  vec2 pixel = -1.0 + 2.0 * gl_FragCoord.xy / resolution.xy;', '  pixel.x *= resolution.x/resolution.y;', '  gl_FragColor = vec4(pixel,.0,1.);', '}'].join('\n'),
+  'DefaultUniforms': ['vec3 objectColor = vec3(1.0, 0.0, 0.0);', 'sampler2D obj_texture = "textures/gooch.png";','vec3 lightPos = vec3(2.0, 0.0, 2.0);','vec3 lightColor = vec3(1.0, 1.0, 1.0);'].join('\n'),
   'ExtractCameraPosition': ['vec3 ExtractCameraPos(mat4 a_modelView)', '{', '  mat3 rotMat =mat3(a_modelView[0].xyz,a_modelView[1].xyz,a_modelView[2].xyz);', '  vec3 d =  a_modelView[3].xyz;', '  vec3 retVec = -d * rotMat;', '  return retVec;', '}'].join('\n'),
   'GetDirection': ['vec3 getDirection(vec3 origine, vec2 pixel)', '{', '  vec3 ww = normalize(vec3(0.0) - origine);', '  vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww ));', '  vec3 vv = normalize(cross(ww,uu));', '  return normalize( pixel.x*uu + pixel.y*vv + 1.5*ww );', '}'].join('\n'),
-
-  'TextureFragment': `precision highp float;
+  'DefaultPostprocessing': `precision highp float;
 uniform sampler2D tex;
 varying vec2 fPosition;
 varying vec2 fUv;
@@ -101,7 +95,7 @@ float perspectiveDepthToViewZ( const in float invClipZ, const in float near, con
 
 float readDepth( sampler2D depthSampler, vec2 coord ) {
   float cameraNear = 0.1;
-  float cameraFar = 100.0;
+  float cameraFar = 1.0;
 	float fragCoordZ = texture2D( depthSampler, coord ).x;
 
 	float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
@@ -115,7 +109,64 @@ void main() {
 	gl_FragColor.rgb = 1.0 - vec3( depth );
 	gl_FragColor.a = 1.0;
 }`,
+
+'AssignmentStarterVertex':  `precision highp float;
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec2 uv;
+
+uniform mat3 normalMatrix;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+// Information we'll pass over to the fragment shader
+varying vec3 fNormal;
+varying vec3 fPosition;
+varying mat4 fModelView;
+varying vec2 fUv;
+
+void main()
+{
+  fUv = uv;
+  fModelView = modelViewMatrix;
+  fNormal = normalize(normalMatrix * normal);
+  vec4 pos = modelViewMatrix * vec4(position, 1.0);
+  fPosition = pos.xyz;
+  gl_Position = projectionMatrix * pos;
+}`,
+'AssignmentStarterFragment': `precision highp float;
+// Gives us the texture for the 'Mechanical' object
+uniform sampler2D obj_texture;
+
+// These uniforms set up a lighting configuration - the light is at (2.0, 0.0, 2.0) and the color is white
+uniform vec3 lightPos;
+uniform vec3 lightColor;
+
+// Information passed in from the vertex shader
+varying vec3 fPosition;
+varying vec3 fNormal;
+varying vec2 fUv;
+
+// This will be needed for the specular component of the shading
+varying mat4 fModelView;
+
+void main()
+{
+  // Use the object's texture to get the color of the current fragment
+  vec4 objColor = texture2D(obj_texture, fUv);
+
+  // We're setting up our own configuration for lighting:
+  vec3 lightPos = vec3(2.0, 0.0, 2.0);
+  vec3 lightDir = normalize(lightPos - fPosition); // Vector from fragment position to light position
+  vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
   
+  // Diffuse component (flat shading)
+  // This will need to get replaced with your implementation of Gooch shading!
+  float diff = max(dot(lightDir, fNormal), 0.0); // Tells us how much this fragment is facing the light
+  vec3 diffuse = diff * lightColor;
+  
+  gl_FragColor = vec4(diffuse * objColor.rgb, 1.0);
+}` 
 };
 
 window.shdr.Snippets = Snippets;

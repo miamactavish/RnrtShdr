@@ -23,6 +23,9 @@ var Models = {
   },
   'models/castle.obj': {
     name: 'Castle'
+  },
+  'models/mechanical.obj': {
+    name: 'Mechanical'
   }
   
 };
